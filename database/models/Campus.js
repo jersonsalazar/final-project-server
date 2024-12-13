@@ -20,6 +20,13 @@ const Campus = db.define("campus", {
 
   description: {
     type: Sequelize.STRING,
+    allowNull: true
+  },
+
+  imageUrl: {
+    type: Sequelize.STRING,
+    allowNull: true,
+    defaultValue: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/UK-2014-Oxford-Pembroke_College_04.jpg/640px-UK-2014-Oxford-Pembroke_College_04.jpg"
   }
 });
 
