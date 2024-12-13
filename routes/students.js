@@ -13,36 +13,38 @@ const { Student, Campus } = require('../database/models');
 // Import a middleware to replace "try and catch" for request handler, for a concise coding (fewer lines of code)
 const ash = require('express-async-handler');
 
+/* GET ALL STUDENTS: async/await using "try-catch" */
+// router.get('/', async (req, res, next) => {
+//   try {
+//     let students = await Student.findAll({include: [Campus]});
+//     res.status(200).json(students);
+//   } 
+//   catch(err) {
+//     next(err);
+//   }
+// });
+
 /* GET ALL STUDENTS: async/await using express-async-handler (ash) */
 // Automatically catches any error and sends to Routing Error-Handling Middleware (app.js)
 // It is the same as using "try-catch" and calling next(error)
 router.get('/', ash(async(req, res) => {
   let students = await Student.findAll({include: [Campus]});
-  res.status(200).json(students); // Status code 200 OK - request succeeded
+  res.status(200).json(students);  // Status code 200 OK - request succeeded
 }));
 
 /* GET STUDENT BY ID */
 router.get('/:id', ash(async(req, res) => {
-  let student = await Student.findByPk(req.params.id, {include: [Campus]}); // Get the student and its associated campus
-  res.status(200).json(student); // Status code 200 OK - request succeeded
+  // Find student by Primary Key
+  let student = await Student.findByPk(req.params.id, {include: [Campus]});  // Get the student and its associated campus
+  res.status(200).json(student);  // Status code 200 OK - request succeeded
 }));
 
 /* ADD NEW STUDENT */
-//-------------- Validation function to check required fields
-function validateStudentData(req, res, next) {
-  const { firstname, lastname, email } = req.body;
-  if (!firstname || !lastname || !email) {
-    return res.status(400).json({ message: "Missing required fields: firstname, lastname, and email are all required." });
-  }
-  // More validations can be added here
-  next();
-}
-router.post('/', validateStudentData, function(req, res, next) {
+router.post('/', function(req, res, next) {
   Student.create(req.body)
-    .then(createdStudent => res.status(201).json(createdStudent))
+    .then(createdStudent => res.status(200).json(createdStudent))
     .catch(err => next(err));
 });
-//--------------
 
 /* DELETE STUDENT */
 router.delete('/:id', function(req, res, next) {
@@ -57,9 +59,12 @@ router.delete('/:id', function(req, res, next) {
 
 /* EDIT STUDENT */
 router.put('/:id', ash(async(req, res) => {
-  await Student.update(req.body, { where: {id: req.params.id} });
+  await Student.update(req.body,
+        { where: {id: req.params.id} }
+  );
+  // Find student by Primary Key
   let student = await Student.findByPk(req.params.id);
-  res.status(201).json(student);
+  res.status(201).json(student);  // Status code 201 Created - successful creation of a resource
 }));
 
 // Export router, so that it can be imported to construct the apiRouter (app.js)
